@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
-	rust_a2s "github.com/rumblefrog/go-a2s"
+	"github.com/michael-j-taylor/go-a2s"
 	"time"
 )
 
@@ -12,7 +11,7 @@ func main() {
 
 	addr := "nobps.rustoria.us:28015"
 
-	c := make(chan *rust_a2s.PlayerInfo)
+	c := make(chan *a2s.PlayerInfo)
 
 	go getPlayers(addr, 10, c)
 
@@ -28,18 +27,16 @@ func main() {
 }
 
 
-func getPlayers(addr string, delay int, c chan<- *rust_a2s.PlayerInfo) {
+func getPlayers(addr string, delay int, c chan<- *a2s.PlayerInfo) {
 
 	//establish client
-	client, err := rust_a2s.NewClient(addr)
+	client, err := a2s.NewClient(addr)
 
 	if err != nil {
 		fmt.Println("error: ", err)
 	} else {
 		fmt.Println("client established")
 	}
-
-	//defer client.Close()
 
 	//Loop forever, sending updated player info back via channel
 	//every (delay) seconds. No need to close channel, as when main()
@@ -57,33 +54,32 @@ func getPlayers(addr string, delay int, c chan<- *rust_a2s.PlayerInfo) {
 }
 
 
-func updatePlayers(oldPlayerInfo, newPlayerInfo *rust_a2s.PlayerInfo) {
+func updatePlayers(oldPlayerInfo, newPlayerInfo *a2s.PlayerInfo) {
 
 	left, joined := []string{}, []string{}
 	left, joined = comparePlayers(oldPlayerInfo, newPlayerInfo)
 
-	for _, v := range(left) {
+	for _, v := range left {
 		fmt.Println(v, " has left the server")
 	}
 
-	for _, v := range(joined) {
+	for _, v := range joined {
 		fmt.Println(v, " has joined the server")
 	}
 
 }
 
-
-func comparePlayers(playerInfo1, playerInfo2 *rust_a2s.PlayerInfo) ([]string, []string) {
+func comparePlayers(playerInfo1, playerInfo2 *a2s.PlayerInfo) ([]string, []string) {
 
 	map1 := make(map[string]bool)
 	map2 := make(map[string]bool)
 
 	//generate maps from array of Players
-	for _, v := range(playerInfo1.Players) {
+	for _, v := range playerInfo1.Players {
 		map1[v.Name] = true
 	}
 
-	for _, v := range(playerInfo2.Players) {
+	for _, v := range playerInfo2.Players {
 		map2[v.Name] = true
 	}
 
@@ -92,7 +88,6 @@ func comparePlayers(playerInfo1, playerInfo2 *rust_a2s.PlayerInfo) ([]string, []
 	return left, joined
 }
 
-
 //return two slices of strings:
 //everything in a not in b and everything in b not in a
 //or all players who left and joined server since last a2s query
@@ -100,12 +95,11 @@ func symmetricDifference(a, b map[string]bool) ([]string, []string) {
 	return difference(a, b), difference(b, a)
 }
 
-
 //everything in a not in b
-func difference(a, b map[string]bool) []string{
+func difference(a, b map[string]bool) []string {
 	rslt := []string{}
 
-	for k, _ := range(a) {
+	for k, _ := range a {
 
 		if !b[k] {
 			rslt = append(rslt, k)
