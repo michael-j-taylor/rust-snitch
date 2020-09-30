@@ -69,3 +69,8 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	//TODO: handle commands
 	return
 }
+
+
+//init initializes the discord session using the token
+//and command prefix in the cfg.json file
+
