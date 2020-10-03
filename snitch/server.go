@@ -1,9 +1,9 @@
 package rustsnitch
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
+
+	a2s "github.com/michael-j-taylor/go-a2s"
 )
 
 
@@ -19,13 +19,13 @@ type Server struct {
 	//slice of tracked groups on server
 	Groups []Group
 
-	//slice of map of player: is_online values
-	Players []map[string]bool
+	//map of player: is_online values
+	Players map[string]bool
 }
 
 
 //newServer creates a new Server struct initialized with an address and a name
-func newServer(addr, name string) *Server {
+func NewServer(addr, name string) *Server {
 	s := new(Server)
 	s.Address = addr
 	s.Name = name
@@ -35,7 +35,7 @@ func newServer(addr, name string) *Server {
 
 //TODO: ensure no duplicate groups can exist in Server struct
 //addGroup appends a group to the Group field of a Server struct
-func (s *Server) addGroup (g *Group) {
+func (s *Server) AddGroup (g *Group) {
 	s.Groups = append(s.Groups, *g)
 	return
 }
@@ -44,7 +44,7 @@ func (s *Server) addGroup (g *Group) {
 //removeGroup removes a group from the Group field of a Server struct
 //because the group to be removed is assumed to already exist
 //the function takes a string as an argument instead of a Group
-func (s *Server) removeGroup(name string) {
+func (s *Server) RemoveGroup(name string) {
 	tmp := s.Groups[:0]
 	for _, g := range(s.Groups) {
 		if g.Name != name {
@@ -58,8 +58,32 @@ func (s *Server) removeGroup(name string) {
 
 
 //addPlayer adds a <TYPE> to the Players field of a Server struct
+func (s *Server) AddPlayer(name string) {
+	s.Players[name] = false
+}
 
 //removePlayer removes a <TYPE> from the Players field of a Server struct
+func (s* Server) RemovePlayer(name string) {
+	delete(s.Players, name)
+}
+
+
+//getPlayers retrieves a slice of players from the specified server via an A2S query
+func (s *Server) getPlayers() map[string]bool {
+
+	//establish client
+	client, err := a2s.NewClient(s.Address)
+
+	if err != nil {
+		fmt.Println("error: ", err)
+	} else {
+		fmt.Println("client established")
+	}
+
+	playerInfo, err := client.QueryPlayer()
+	
+	return playerInfo.PlayersTest
+}
 
 
 

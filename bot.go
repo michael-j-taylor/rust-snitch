@@ -1,34 +1,16 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 
 	//snitch "github.com/michael-j-taylor/rust-snitch/rust-snitch/rustsnitch"
 	"github.com/bwmarrin/discordgo"
 )
 
-//struct for bot command prefix and token
-type botcfg struct {
-	Prefix string
-	Token  string
-}
-
 func main() {
 
-	//read prefix and token from .json file
-	data, err := ioutil.ReadFile("cfg.json")
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	var cfg botcfg
-
-	err = json.Unmarshal(data, &cfg)
-	if err != nil {
-		fmt.Println(err)
-	}
+	var cfg Botcfg
+	cfg.Init()
 
 	fmt.Println(cfg.Prefix + " " + cfg.Token)
 
@@ -51,11 +33,15 @@ func main() {
 		return
 	}
 
-	fmt.Println("Bot is now running")
+	fmt.Println("bot now running")
+
+	//TODO: read data into memory from servers.json and fire off
+	//appropriate goroutines
 
 	//block forever
 	<-make(chan int)
 }
+
 
 //onMessageCreate is a called every time a new message is created in a
 //channel the bot can access
@@ -70,7 +56,4 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	return
 }
 
-
-//init initializes the discord session using the token
-//and command prefix in the cfg.json file
 
